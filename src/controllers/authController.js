@@ -138,7 +138,6 @@ exports.completeSignup = async (req, res) => {
   }
 };
 
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -194,31 +193,35 @@ exports.login = async (req, res) => {
       "INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)",
       [user.id, refreshToken]
     );
-res.cookie("access_token", accessToken, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  maxAge: 15 * 60 * 1000, // 15 min
-});
+    res.cookie("access_token", accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000, // 15 min
+    });
 
-res.cookie("refresh_token", refreshToken, {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-});
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
-res.cookie("user", JSON.stringify({
-  id: user.id,
-  email: user.email,
-  name: user.name,
-  role: user.role,
-}), {
-  httpOnly: false, // front-end can read
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-});
+    res.cookie(
+      "user",
+      JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      }),
+      {
+        httpOnly: false, // front-end can read
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      }
+    );
     return res.json({
       user: {
         id: user.id,
@@ -312,8 +315,6 @@ exports.logout = async (req, res) => {
 
 // --------- ME (Protected) ---------
 
-
-
 exports.me = async (req, res) => {
   try {
     // Verify token
@@ -341,8 +342,7 @@ exports.resetPasswordAuth = async (req, res) => {
   const userId = req.user?.id; // middleware should set this
   const { currentPassword, newPassword } = req.body;
 
-  if (!userId)
-    return res.status(401).json({ error: "User not authenticated" });
+  if (!userId) return res.status(401).json({ error: "User not authenticated" });
   if (!currentPassword || !newPassword)
     return res.status(400).json({ error: "All fields required" });
 
@@ -360,14 +360,16 @@ exports.resetPasswordAuth = async (req, res) => {
     // If user has a Google ID (Google login), no password reset!
     if (user.google_id && !user.password_hash) {
       return res.status(400).json({
-        error: "Password reset is not available for Google login accounts. Please login using Google.",
+        error:
+          "Password reset is not available for Google login accounts. Please login using Google.",
       });
     }
 
     // If no password hash, but not Google account (corrupt), also handle
     if (!user.password_hash) {
       return res.status(400).json({
-        error: "No password set for this account. Please use your Google account to login.",
+        error:
+          "No password set for this account. Please use your Google account to login.",
       });
     }
 
@@ -378,27 +380,27 @@ exports.resetPasswordAuth = async (req, res) => {
 
     // Hash new password and update
     const newHash = await bcrypt.hash(newPassword, 10);
-    await pool.query(
-      "UPDATE users SET password_hash = ? WHERE id = ?",
-      [newHash, userId]
-    );
+    await pool.query("UPDATE users SET password_hash = ? WHERE id = ?", [
+      newHash,
+      userId,
+    ]);
 
-    return res.json({ success: true, message: "Password updated successfully!" });
+    return res.json({
+      success: true,
+      message: "Password updated successfully!",
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Something went wrong" });
   }
 };
 
-
 exports.deleteAccount = async (req, res) => {
   const userId = req.user?.id; // set by auth middleware
   const { password } = req.body;
 
-  if (!userId)
-    return res.status(401).json({ error: "User not authenticated" });
-  if (!password)
-    return res.status(400).json({ error: "Password required" });
+  if (!userId) return res.status(401).json({ error: "User not authenticated" });
+  if (!password) return res.status(400).json({ error: "Password required" });
 
   try {
     // Fetch user info
@@ -412,7 +414,8 @@ exports.deleteAccount = async (req, res) => {
     // For Google users with no password
     if (user.google_id && !user.password_hash) {
       return res.status(400).json({
-        error: "Cannot delete account using password. This is a Google login account.",
+        error:
+          "Cannot delete account using password. This is a Google login account.",
       });
     }
     if (!user.password_hash) {
