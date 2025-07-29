@@ -195,14 +195,14 @@ exports.login = async (req, res) => {
     );
     res.cookie("access_token", accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "None",
       maxAge: 15 * 60 * 1000, // 15 min
     });
 
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -217,7 +217,7 @@ exports.login = async (req, res) => {
       }),
       {
         httpOnly: false, // front-end can read
-        secure: false,
+        secure: true,
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       }
