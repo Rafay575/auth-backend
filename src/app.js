@@ -19,7 +19,13 @@ const receiptsRouter = require("./routes/receipts");
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: "https://www.tivoa.art", // use EXACT frontend origin, no trailing slash
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
