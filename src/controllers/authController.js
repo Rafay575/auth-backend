@@ -194,34 +194,39 @@ exports.login = async (req, res) => {
       [user.id, refreshToken]
     );
     res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000, // 15 min
-    });
+  httpOnly: true,
+  secure: true,           // <--- must be true in production (HTTPS)
+  sameSite: "lax",        // "lax" is safe, "strict" blocks some flows, "none" is for cross-site
+  maxAge: 15 * 60 * 1000, // 15 min
+  path: "/",              // accessible on all routes
+});
 
-    res.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+res.cookie("refresh_token", refreshToken, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  path: "/",
+});
 
-    res.cookie(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      }),
-      {
-        httpOnly: false, // front-end can read
-        secure: false,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      }
-    );
+// Only expose *non-sensitive* data in non-HttpOnly cookie
+res.cookie(
+  "user",
+  JSON.stringify({
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  }),
+  {
+    httpOnly: false,      // Only public info, never tokens or passwords!
+    secure: true,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
+  }
+);
+
     return res.json({
       user: {
         id: user.id,
