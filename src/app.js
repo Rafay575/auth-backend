@@ -20,10 +20,12 @@ dotenv.config();
 
 const app = express();
 app.use(
-  cors({
-    origin: "*", // use EXACT frontend origin, no trailing slash
-    credentials: true,
-  })
+cors({
+  origin: "https://www.tivoa.art",
+  credentials: true,
+})
+
+
 );
 
 app.use(express.json());
