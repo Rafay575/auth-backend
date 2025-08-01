@@ -197,7 +197,8 @@ exports.login = async (req, res) => {
   httpOnly: true,
   secure: true,           // <--- must be true in production (HTTPS)
   sameSite: "lax",        // "lax" is safe, "strict" blocks some flows, "none" is for cross-site
-  maxAge: 15 * 60 * 1000, // 15 min
+ maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years in ms
+// 15 min
   path: "/",              // accessible on all routes
 });
 
@@ -205,7 +206,8 @@ res.cookie("refresh_token", refreshToken, {
   httpOnly: true,
   secure: true,
   sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years in ms
+ // 7 days
   path: "/",
 });
 
@@ -222,7 +224,8 @@ res.cookie(
     httpOnly: false,      // Only public info, never tokens or passwords!
     secure: true,
     sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+maxAge: 10 * 365 * 24 * 60 * 60 * 1000, // 10 years in ms
+
     path: "/",
   }
 );
