@@ -103,9 +103,9 @@ router.get(
         [user.id, refreshToken]
       );
 
-      res.cookie("access_token", accessToken, { httpOnly: true, maxAge: 15 * 60 * 1000 });
-      res.cookie("refresh_token", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
-      res.cookie("user", JSON.stringify(user), { httpOnly: false });
+      res.cookie("access_token", accessToken, { httpOnly: true, maxAge: 10 * 365 * 24 * 60 * 60 * 1000});
+      res.cookie("refresh_token", refreshToken, { httpOnly: true, maxAge: 10 * 365 * 24 * 60 * 60 * 1000 });
+      res.cookie("user", JSON.stringify(user), { httpOnly: false ,maxAge: 10 * 365 * 24 * 60 * 60 * 1000});
 
       return res.redirect(`${FRONTEND_URL}/create`);
     } catch (e) {
