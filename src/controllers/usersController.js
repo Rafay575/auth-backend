@@ -109,4 +109,36 @@ exports.getUserTransactions = async (req, res) => {
   }
 };
 
+exports.blockUser = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const [result] = await pool.execute(
+      'UPDATE users SET isblock = 1 WHERE id = ?',
+      [userId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User blocked successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error blocking user', error: error.message });
+  }
+};
+
+// Unblock user
+exports.unblockUser = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const [result] = await pool.execute(
+      'UPDATE users SET isblock = 0 WHERE id = ?',
+      [userId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User unblocked successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error unblocking user', error: error.message });
+  }
+};
 // POST /api/user-images/:id/favorite
