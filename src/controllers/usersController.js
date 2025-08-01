@@ -109,16 +109,20 @@ exports.getUserTransactions = async (req, res) => {
   }
 };
 
+// Block user
 exports.blockUser = async (req, res) => {
   const userId = req.params.id;
   try {
-    const [result] = await pool.execute(
-      'UPDATE users SET isblock = 1 WHERE id = ?',
-      [userId]
-    );
-    if (result.affectedRows === 0) {
+    // First, check if the user exists and is not an admin
+    const [rows] = await pool.execute('SELECT role FROM users WHERE id = ?', [userId]);
+    if (!rows.length) {
       return res.status(404).json({ message: 'User not found' });
     }
+    if (rows[0].role == 1) {
+      return res.status(403).json({ message: 'Cannot block an admin user.' });
+    }
+    // Proceed to block
+    const [result] = await pool.execute('UPDATE users SET is_blocked = 1 WHERE id = ?', [userId]);
     res.json({ message: 'User blocked successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error blocking user', error: error.message });
@@ -129,16 +133,20 @@ exports.blockUser = async (req, res) => {
 exports.unblockUser = async (req, res) => {
   const userId = req.params.id;
   try {
-    const [result] = await pool.execute(
-      'UPDATE users SET isblock = 0 WHERE id = ?',
-      [userId]
-    );
-    if (result.affectedRows === 0) {
+    // First, check if the user exists and is not an admin
+    const [rows] = await pool.execute('SELECT role FROM users WHERE id = ?', [userId]);
+    if (!rows.length) {
       return res.status(404).json({ message: 'User not found' });
     }
+    if (rows[0].role == 1) {
+      return res.status(403).json({ message: 'Cannot unblock an admin user.' });
+    }
+    // Proceed to unblock
+    const [result] = await pool.execute('UPDATE users SET is_blocked = 0 WHERE id = ?', [userId]);
     res.json({ message: 'User unblocked successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error unblocking user', error: error.message });
   }
 };
+
 // POST /api/user-images/:id/favorite
