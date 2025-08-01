@@ -8,8 +8,8 @@ function generateOtp() {
 async function sendOtpMail(to, otp) {
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
-    port: Number(process.env.EMAIL_PORT) || 587,
-    secure: false,
+    port: Number(process.env.EMAIL_PORT) || 465,
+    secure: true, // SSL
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -39,10 +39,10 @@ async function sendOtpMail(to, otp) {
     </div>
     <div style="background:#fafafa;font-size:0.93rem;text-align:center;color:#777;padding:18px;">
       © 2025 Tivoa Art. All rights reserved.<br>
-      Need help? Contact us at <a href="mailto:support@tivoaart.com" style="color:#666;text-decoration:underline;">support@tivoaart.com</a>
+      Need help? Contact us at <a href="mailto:support@tivoa.art" style="color:#666;text-decoration:underline;">support@tivoa.art</a>
     </div>
   </div>
-  `;
+  `; // your existing HTML code remains the same
 
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
