@@ -8,7 +8,7 @@ exports.getUsers = async (req, res) => {
     perPage = 10,
     search = "",
     sortBy = "id",
-    sortDir = "asc"
+    sortDir = "desc"
   } = req.query;
 
   page = parseInt(page);
@@ -17,7 +17,7 @@ exports.getUsers = async (req, res) => {
   // Sanitize sortBy/Dir
   const allowedSortBy = ['id', 'name', 'email', 'role', 'credits'];
   if (!allowedSortBy.includes(sortBy)) sortBy = 'id';
-  if (!['asc', 'desc'].includes(sortDir)) sortDir = 'asc';
+  if (!['asc', 'desc'].includes(sortDir)) sortDir = 'desc';
 
   // Filter and Pagination
   let where = "";
@@ -30,7 +30,7 @@ exports.getUsers = async (req, res) => {
   const [[{ total }]] = await pool.query(countQuery, params);
 
   const dataQuery = `
-    SELECT id, name, email, role, is_blocked, is_deleted, credits
+    SELECT id, name, email, role, is_blocked, is_deleted, credits, created_at 
     FROM users
     ${where}
     ORDER BY ${sortBy} ${sortDir}

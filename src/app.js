@@ -53,4 +53,6 @@ app.use('/api/contact', contactRoutes);
 app.use("/api", userImagesRoutes);
 app.use("/api/transactions", receiptsRouter);
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Auth API running on :${PORT}`));
+const server = app.listen(PORT, () => console.log(`Auth API running on :${PORT}`));
+// Set request timeout to 10 minutes (600,000 ms)
+server.timeout = 10 * 60 * 1000;
